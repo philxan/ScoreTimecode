@@ -39,7 +39,7 @@ MuseScore
 // configuration options. 
 //
 // These can be set in the Main UI
-  property var offsetTimeText: "00:00:000";    // seconds.milliseconds  
+  property var offsetTimeText: "00:00.000";    // seconds.milliseconds  
   property var offsetTime: 0.0
   property var excludeFirstMeasure: false;
   property var alwaysIncludeMinutes: false;
@@ -91,7 +91,7 @@ MuseScore
         horizontalAlignment: TextInput.AlignRight
         Layout.alignment: Qt.AlignRight
         
-        validator: RegularExpressionValidator { regularExpression: /^((\d{1,2}):(\d{1,2}):(\d{1,3}))$/ }
+        validator: RegularExpressionValidator { regularExpression: /^((\d{1,2}):(\d{1,2}).(\d{1,3}))$/ }
       }
     }
 
@@ -101,7 +101,7 @@ MuseScore
       Layout.columnSpan:2
       font.italic: true
       color: palette.text  
-      text: "Time code at which to start in mins:secs:millisecs.\nDefault: 00:00:000"
+      text: "Time code at which to start in mins:secs:millisecs.\nDefault: 00:00.000"
     }
     
     CheckBox 
@@ -613,11 +613,11 @@ console.log("Error: More than one staff selected")
 
     offsetTime = 0;
 
-    // Parse a offsetTimeText in format "MM:SS:HHHH" (minutes:seconds:milliseconds)
+    // Parse a offsetTimeText in format "MM:SS.HHH" (minutes:seconds:milliseconds)
     try 
     {
         // Check if it matches the format
-        var regex = /^((\d{1,2}):(\d{1,2}):(\d{1,3}))$/;
+        var regex = /^((\d{1,2}):(\d{1,2}).(\d{1,3}))$/;
         var timeStamp = offsetTimeText.match(regex);
         
         if (!timeStamp) return false;
@@ -625,6 +625,9 @@ console.log("Error: More than one staff selected")
         var minutes = parseInt(timeStamp[2]);
         var seconds = parseInt(timeStamp[3]);
         var millis = parseInt(timeStamp[4]);
+        
+        if (millis < 10) millis *= 10;    // 5 -> 50
+        if (millis < 100) millis *= 10;   // 50 -> 500
         
         // Validate ranges
         if (seconds >= 60) {
