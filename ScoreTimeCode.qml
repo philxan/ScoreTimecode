@@ -14,6 +14,9 @@ import Muse.UiComponents
 // (C) 2025 Phil Kan 
 // PitDad Music. All Rights Reserved. GPL3 License. 
 // 
+// To Do 
+// - Better Layout of buttons 
+// 
 // Change History
 // v1.0 - Initial development
 // 
@@ -28,8 +31,8 @@ MuseScore
   pluginType: "dialog"
   thumbnailName: "ScoreTimecodeIcon.png"
   
-  implicitHeight: 325;
-  implicitWidth: 275;
+  implicitHeight: 350;
+  implicitWidth: 300;
  
 
 //=============================================================================
@@ -39,15 +42,18 @@ MuseScore
   property var offsetTimeText: "00:00:000";    // seconds.milliseconds  
   property var offsetTime: 0.0
   property var excludeFirstMeasure: false;
+  property var alwaysIncludeMinutes: false;
   property var italicText: false;
   property var boldText: false;
+  property var borderText: false;
   property var underlineText: false;    
   property var aboveText: false  
                                       
 //=============================================================================
 // Main UI Layout
-// 
 //
+
+  SystemPalette { id: palette; colorGroup: SystemPalette.Active }
 
   GridLayout 
   {
@@ -58,18 +64,35 @@ MuseScore
     anchors.leftMargin: 5
     anchors.rightMargin: 5
     
-    Label 
+    RowLayout 
     {
-      id: offsetTimeLabel
-      text: "Offset time"
-    }
+      id: offsetRow
+      Layout.columnSpan:2
+    
+      Label 
+      {
+        id: offsetTimeLabel
+        font.bold: true
+        color: palette.text  
+        text: "Offset time"
+      }
+          
+      Item
+      {
+        id: offsetSpacerItem
+        Layout.fillWidth: true
+      }
+      
+      TextField 
+      {
+        id: offsetTimeField
+        text: offsetTimeText
+        Layout.maximumWidth:100      
+        horizontalAlignment: TextInput.AlignRight
+        Layout.alignment: Qt.AlignRight
         
-    TextField 
-    {
-      id: offsetTimeField
-      text: offsetTimeText
-      Layout.maximumWidth:100
-      horizontalAlignment: TextInput.AlignRight
+        validator: RegularExpressionValidator { regularExpression: /^((\d{1,2}):(\d{1,2}):(\d{1,3}))$/ }
+      }
     }
 
     Label 
@@ -77,8 +100,8 @@ MuseScore
       id: offsetTimeDescription
       Layout.columnSpan:2
       font.italic: true
+      color: palette.text  
       text: "Time code at which to start in mins:secs:millisecs.\nDefault: 00:00:000"
-      bottomPadding: 10
     }
     
     CheckBox 
@@ -90,21 +113,35 @@ MuseScore
       onClicked: { 
         excludeFirstMeasure = !excludeFirstMeasure; 
       }
-      
     }
     
+    CheckBox 
+    {
+      id: alwaysIncludeMinuteCheckbox
+      Layout.columnSpan:2
+      text: "Always include minutes"
+      checked: alwaysIncludeMinutes
+      onClicked: { 
+        alwaysIncludeMinutes = !alwaysIncludeMinutes; 
+      }
+    }
+
     Label 
     {
       id: styleLabel
-      Layout.columnSpan:2
+      Layout.columnSpan: 2
+      Layout.topMargin: 10
+      color: palette.text  
       text: "Style:"
     }
     
-    Row
+    RowLayout
     {
       id: styleRow
       Layout.columnSpan: 2
-      spacing: 5
+      Layout.leftMargin: 10
+      Layout.rightMargin: 10
+      width:parent.width
       
       RoundButton 
       {
@@ -112,6 +149,7 @@ MuseScore
         radius: 5
         text: "B"
         font.bold: true
+        palette.buttonText: palette.text
         checkable: true
         checked: boldText
         onClicked: { 
@@ -125,6 +163,7 @@ MuseScore
         radius: 5
         text: "I"
         font.italic: true
+        palette.buttonText: palette.text
         checkable: true
         checked: italicText
         onClicked: { 
@@ -138,6 +177,7 @@ MuseScore
         radius: 5
         text: "U"
         font.underline: true
+        palette.buttonText: palette.text
         checkable: true
         checked: underlineText
         onClicked: { 
@@ -145,26 +185,40 @@ MuseScore
         }
       }
       
-      SpinBox {
-          id: fontSizeSpinBox
-          from: 1
-          value: 9
-          to: 99
-          Layout.preferredHeight : underlineButton.height
-          editable: true
+      RoundButton 
+      {
+        id: borderButton
+        radius: 5
+        text: "[0]"
+        palette.buttonText: palette.text
+        checkable: true
+        checked: borderText
+        onClicked: { 
+          borderText = !borderText; 
+        }
+      }
+      
+      SpinBox 
+      {
+        id: fontSizeSpinBox
+        from: 1
+        value: 9
+        to: 99
+        editable: true
+        palette.buttonText: palette.text
 
-          property string suffix: "pt"
+        property string suffix: "pt"
 
-          validator: RegularExpressionValidator { regularExpression: /\D*(-?\d*\.?\d*)\D*/ }
+        validator: RegularExpressionValidator { regularExpression: /\D*(-?\d*\.?\d*)\D*/ }
 
-          textFromValue: function(value, locale) {
-              return Number(value).toLocaleString(locale, 'f', 0) + suffix
-          }
+        textFromValue: function(value, locale) {
+            return Number(value).toLocaleString(locale, 'f', 0) + suffix
+        }
 
-          valueFromText: function(text, locale) {
-              let re = /\D*(-?\d*\.?\d*)\D*/
-              return Number.fromLocaleString(locale, re.exec(text)[1])
-          }
+        valueFromText: function(text, locale) {
+            let re = /\D*(-?\d*\.?\d*)\D*/
+            return Number.fromLocaleString(locale, re.exec(text)[1])
+        }
       }      
     }
     
@@ -172,18 +226,25 @@ MuseScore
     {
       id: positionGroup
     }
+    
+    ButtonGroup
+    {
+      id: textStyleGroup
+    }
 
-    Row
+    RowLayout
     {
       id: positionRow
       Layout.columnSpan: 2
-      bottomPadding: 10
+      Layout.leftMargin: 10
+      Layout.rightMargin: 10
       
       RoundButton 
       {
         id: aboveButton
         radius: 5
         text: "Above"
+        palette.buttonText: palette.text
         checkable: true
         ButtonGroup.group: positionGroup
       }
@@ -193,26 +254,58 @@ MuseScore
         id: belowButton
         radius: 5
         text: "Below"
+        palette.buttonText: palette.text
         checkable: true
         checked: true
         ButtonGroup.group: positionGroup
       }
-    }
+      
+      Item
+      {
+        id: positionRowSpacerItem
+        Layout.fillWidth: true
+      }
+      
+      RoundButton 
+      {
+        id: quotesButton
+        radius: 5
+        text: "0'00.000"
+        palette.buttonText: palette.text
+        checkable: true
+        ButtonGroup.group: textStyleGroup
+        Layout.alignment: Qt.AlignRight
+      }
 
+      RoundButton 
+      {
+        id: colonsButton
+        radius: 5
+        text: "00:00.000"
+        palette.buttonText: palette.text
+        checkable: true
+        checked:true
+        ButtonGroup.group: textStyleGroup
+      }
+      
+    }
     
     Row
     {
       id: buttonsRow
-      Layout.alignment: Qt.AlignBottom
       Layout.columnSpan: 2
+      
       spacing: 5
-      bottomPadding: 10
+      topPadding: 10
+      rightPadding: 10
+      bottomPadding: 5
 
       RoundButton 
       {
         id: applyButton
         text: qsTranslate("PrefsDialogBase", "Apply")
         font.bold: true
+        palette.buttonText: palette.text
         radius: 5
         onClicked: addScoreTimes()
       }
@@ -221,9 +314,11 @@ MuseScore
       {
         id: aboutButton
         text: "About"
+        palette.buttonText: palette.text
         radius: 5
         onClicked: aboutDialog.open()
       }
+      
     }
   }    
   
@@ -250,6 +345,7 @@ MuseScore
     id: aboutDialog
     title: "About Score Timecode"
     anchors.centerIn: parent
+    palette.buttonText: palette.text
     standardButtons: Dialog.Ok 
     implicitWidth: Math.round(parent.width * 90 / 100)
     implicitHeight: Math.round(parent.height * 90 / 100)
@@ -464,16 +560,27 @@ console.log("Error: More than one staff selected")
   function formatTime(seconds)
   {
     var minutes = Math.floor(seconds / 60);
-    minutes = (minutes < 10 ? "0" : "") + minutes;
     
-    var secondsPart = Math.floor(seconds % 60);
-    seconds = seconds - secondsPart;
-    secondsPart = (secondsPart < 10 ? "0" : "") + secondsPart;
+    seconds = seconds - (minutes*60);
 
+    var secondsPart = Math.floor(seconds);   
+    secondsPart = (((minutes > 0 || alwaysIncludeMinutes) && secondsPart < 10) ? "0" : "") + secondsPart;
+    
+    seconds = seconds - Math.floor(seconds);
     var milliseconds = Math.round(seconds * 1000)
+    
     while (milliseconds.toString().length < 3) milliseconds = "0" + milliseconds;
-
-    return (minutes + ":" + secondsPart + "." + milliseconds);
+    
+    var result = secondsPart + "." + milliseconds + '"';
+    
+    if (minutes > 0 || alwaysIncludeMinutes)
+    {
+      result = minutes 
+        + (colonsButton.checked ? ":" : "'")
+        + result;
+    }
+    
+    return result;
   }
 
 
@@ -486,9 +593,11 @@ console.log("Error: More than one staff selected")
 
     text.fontSize = fontSizeSpinBox.value
 
-    text.fontStyle = (boldText ? 1 : 0) 
-                      + (italicText ? 2 : 0)
-                      + (underlineText ? 4 : 0);
+    text.fontStyle = (boldText ? 1 : 0)           // MS::FontStyle.Bold
+                      + (italicText ? 2 : 0)      // MS::FontStyle.Italic
+                      + (underlineText ? 4 : 0);  // MS::FontStyle.Underline
+                      
+    text.frameType = (borderText ? 1 : 0);    // MS::FrameType.SQUARE
 
     text.placement = aboveButton.checked ? Placement.ABOVE : Placement.BELOW
     cursor.add(text);
