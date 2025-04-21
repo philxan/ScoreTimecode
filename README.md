@@ -1,10 +1,14 @@
 # Score Timecode
+<img src="ScoreTimecodeIcon.png" align="left" width="150px"/>
 
-Score Timecode is a plugin for MuseScore Studio that adds the elapsed time in seconds to each measure. 
+Score Timecode is a plugin for MuseScore Studio (v4.4) that adds the elapsed time in seconds to each measure. 
 It's as simple as selecting an entire staff, or just a number of bars in the staff, and clicking "Apply".  Score Timecode will then add the elapsed time in minutes, seconds and milliseconds to each bar.  You can even add an offset time, and select various formatting options to make the text look just the way you want it to. 
+<p></p>
 
 Usage
 -----
+<img src="ScoreTimecodeMainForm.png" align="right" />
+
 **Offset time**\
 Enter the timecode for the first measure, in minutes, seconds and milliseconds. Only numbers may be entered, and the correct formatting will be forced by the plugin. A maximum of 99 minutes can be entered.\
 Note that for milliseconds, trailing zeros are added if required, so entering "00:00.5" will be interpretted as "00:00:500". 
@@ -13,8 +17,8 @@ Note that for milliseconds, trailing zeros are added if required, so entering "0
 Check this box to _not_ write the timecode to the first measure selected. In most situations this will be 0.000, and superfluous. 
 
 **Always include minutes**\
-Check this box to _always_ include the minutes component when writing the timecode.
-- When this box is _unchecked_ (default) the minutes will only be included once it is required, and the seconds will be written using one or two digits as required.
+Check this box to _always_ include the minutes component when writing the timecode.\
+- When this box is _unchecked_ (default) the minutes will only be included once it is required, and the seconds will be written using one or two digits as required.\
 - When this box _checked_ the minutes will always be included in the timecode (even when 0), and the  seconds will always be written using two digits. 
 
 **Style**\
