@@ -43,7 +43,7 @@ Installation
 To install the plugin:
 1. Download the latest ScoreTimecode.zip from the releases. 
 1. Unzip the file contents into a separate folder. This will typically be "ScoreTimecode-xxx" for some version.
-1. Move th  folder into your MuseScore Plugins folder, which can be found here (for MuseScore 4)
+1. Move the folder into your MuseScore Plugins folder, which can be found here (for MuseScore 4)
    * Windows: %HOMEPATH%\Documents\MuseScore4\Plugins
    * Mac: ~/Documents/MuseScore4/Plugins
    * Linux: ~/Documents/MuseScore4/Plugins
@@ -58,4 +58,5 @@ To use the plugin:
    
 Release History
 -------------
+**v1.0** - 24/4/2025 - Initial Release
 
