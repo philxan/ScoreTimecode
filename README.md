@@ -1,7 +1,8 @@
 # Score Timecode
 <img src="ScoreTimecodeIcon.png" align="left" width="150px"/>
 
-Score Timecode is a plugin for MuseScore Studio (v4.4) that adds the elapsed time in seconds to each measure. 
+Score Timecode is a plugin for MuseScore Studio (v4.4) that adds the elapsed time in seconds to each measure. This can be incredibly useful when trying to time scores for video projects, or syncronising with other generated media.
+
 It's as simple as selecting an entire staff, or just a number of bars in the staff, and clicking "Apply".  Score Timecode will then add the elapsed time in minutes, seconds and milliseconds to each bar.  You can even add an offset time, and select various formatting options to make the text look just the way you want it to. 
 
 All tempo changes are taken into account, so the timecode should be as accurate as possible. 
