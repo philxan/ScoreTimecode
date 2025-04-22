@@ -19,8 +19,8 @@ Note that for milliseconds, trailing zeros are added if required, so entering "0
 Check this box to _not_ write the timecode to the first measure selected. In most situations this will be 0.000, and superfluous. 
 
 **Always include minutes**\
-Check this box to _always_ include the minutes component when writing the timecode.\
-- When this box is _unchecked_ (default) the minutes will only be included once it is required, and the seconds will be written using one or two digits as required.\
+Check this box to _always_ include the minutes component when writing the timecode.
+- When this box is _unchecked_ (default) the minutes will only be included once it is required, and the seconds will be written using one or two digits as required.
 - When this box _checked_ the minutes will always be included in the timecode (even when 0), and the  seconds will always be written using two digits. 
 
 **Style**\
