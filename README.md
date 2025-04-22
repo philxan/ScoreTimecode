@@ -41,7 +41,7 @@ See the About dialog.
 Installation
 -------------
 To install the plugin:
-1. Download the latest ScoreTimecode.zip from the releases. 
+1. Download the latest version from the releases. 
 1. Unzip the file contents into a separate folder. This will typically be "ScoreTimecode-xxx" for some version.
 1. Move the folder into your MuseScore Plugins folder, which can be found here (for MuseScore 4)
    * Windows: %HOMEPATH%\Documents\MuseScore4\Plugins
@@ -49,11 +49,11 @@ To install the plugin:
    * Linux: ~/Documents/MuseScore4/Plugins
 1. Launch MuseScore
 1. Select the menu item Plugins > Plugin Manager...
-1. Enable Score Timecode
+1. Enable the "Score Timecode" plugin
    
 To use the plugin:
 1. Select the menu item Plugins > Score Timecode.  
-1. Select any number of bars in the staff where you want the time code to be generated.
+1. Select any number of bars in the staff where you want the time code to be written.
 1. Follow the descriptions above for the various options, and click "Apply".
    
 Release History
