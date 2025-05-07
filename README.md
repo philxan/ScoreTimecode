@@ -9,7 +9,7 @@ All tempo changes are taken into account, so the timecode should be as accurate 
 
 Usage
 -----
-<img src="ScoreTimecodeMainForm.png" align="right" />
+<img width="353" alt="Score Timecode  wFrames" src="https://github.com/user-attachments/assets/a54a7163-7362-4d8e-acfa-cf1d154761ae"  align="right" />
 
 **Offset time**\
 Enter the timecode for the first measure, in minutes, seconds and milliseconds. Only numbers may be entered, and the correct formatting will be forced by the plugin. A maximum of 99 minutes can be entered.\
@@ -22,6 +22,9 @@ Check this box to _not_ write the timecode to the first measure selected. In mos
 Check this box to _always_ include the minutes component when writing the timecode.
 - When this box is _unchecked_ (default) the minutes will only be included once it is required, and the seconds will be written using one or two digits as required.
 - When this box _checked_ the minutes will always be included in the timecode (even when 0), and the  seconds will always be written using two digits. 
+
+**Show frames not millisecs**\
+Check this box to show frames instead of milliseconds. Enter a frame rate below. The plugin automatically uses drop/non-drop frames according to standard timecode conventions.
 
 **Style**\
 Set various text style parameters for the timecode. Bold, Italic, Undescore and Square border may be combined as required. 
@@ -59,5 +62,6 @@ To use the plugin:
    
 Release History
 -------------
-**v1.0** - 24/4/2025 - Initial Release
+**v1.0** - 24/4/2025 - Initial Release  
+**v1.5** - 7/5/2025 - Add millisec -> frame/dropframe display options
 

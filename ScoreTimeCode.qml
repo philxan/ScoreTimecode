@@ -19,20 +19,21 @@ import Muse.UiComponents
 // 
 // Change History
 // v1.0 - Initial development
+// v1.5 - Add millisec -> frame/dropframe display options (by Eric Warren - https://github.com/eakwarren/ScoreTimecode)
 // 
 //=============================================================================
 
 MuseScore 
 {
-  version: "1.0"
+  version: "1.5"
   
   title: "Score Timecode"
-  description: "This plug-in adds text to each measure to display the elapsed time in minutes, seconds, and milliseconds."
+  description: "This plug-in adds text to each measure to display the elapsed time in minutes, seconds, and milliseconds or frames."
   pluginType: "dialog"
   thumbnailName: "ScoreTimecodeIcon.png"
   
   implicitHeight: 350;
-  implicitWidth: 300;
+  implicitWidth: 350;
  
 
 //=============================================================================
@@ -47,8 +48,12 @@ MuseScore
   property var boldText: false;
   property var borderText: false;
   property var underlineText: false;    
-  property var aboveText: false  
-                                      
+  property var aboveText: false
+
+  property bool useFps: false;  // defaults
+  property var fps: 24;
+  property var dropFrames: false;
+
 //=============================================================================
 // Main UI Layout
 //
@@ -107,22 +112,74 @@ MuseScore
     CheckBox 
     {
       id: excludeFirstMeasureCheckbox
-      Layout.columnSpan:2
+      Layout.columnSpan:1
       text: "Exclude the first measure"
       checked: excludeFirstMeasure
       onClicked: { 
         excludeFirstMeasure = !excludeFirstMeasure; 
       }
     }
+
+    CheckBox
+    {
+      id: useFpsField
+      Layout.columnSpan:1
+      text: "Show fps not millisecs"
+
+      checked: useFps
+      onClicked: { useFps = !useFps; }
+    }
     
     CheckBox 
     {
       id: alwaysIncludeMinuteCheckbox
-      Layout.columnSpan:2
+      Layout.columnSpan:1
       text: "Always include minutes"
       checked: alwaysIncludeMinutes
       onClicked: { 
         alwaysIncludeMinutes = !alwaysIncludeMinutes; 
+      }
+    }
+
+    RowLayout
+    {
+      id: fpsInfo
+      Layout.columnSpan:1
+      Layout.alignment: Qt.AlignRight
+
+      Label
+      {
+        id: fpsDesc
+        font.italic: true
+        font.pointSize: 12
+        color: palette.text
+        text: "24, 29.97, 60, etc. "
+      }
+
+      TextField
+        {
+        id: fpsField
+        Layout.alignment: Qt.AlignRight
+
+        text: fps
+
+        placeholderText: "24"
+        color: ui.theme.fontPrimaryColor
+        // Set the placeholder with dynamic opacity when empty
+        placeholderTextColor: Qt.rgba(
+          ui.theme.fontPrimaryColor.r,
+          ui.theme.fontPrimaryColor.g,
+          ui.theme.fontPrimaryColor.b,
+          text.length > 1 ? 1.0 : 0.5
+        )
+
+        implicitHeight: 24
+        Layout.maximumWidth:50
+        horizontalAlignment: TextInput.AlignRight
+
+        validator: RegularExpressionValidator { regularExpression: /^((\d{1,2}).(\d{1,3}))$/ || /^((\d{1,2})$/ }
+
+        enabled: useFps ? 1 : 0
       }
     }
 
@@ -319,9 +376,9 @@ MuseScore
         onClicked: aboutDialog.open()
       }
       
-    }
-  }    
-  
+    }  
+  }
+
 //=============================================================================
 // About Dialog
 
@@ -470,7 +527,7 @@ console.log("Error: More than one staff selected")
     
     cursor.nextMeasure()
     
-    while ((cursor.tick != 0) && (cursor.tick < endTick))
+    while ((cursor.tick !== 0) && (cursor.tick < endTick))
     { 
       var measureSeconds = 0;
       
@@ -520,7 +577,6 @@ console.log("Error: More than one staff selected")
     
     curScore.endCmd()
   }
-
   
 //=============================================================================
 // 
@@ -571,7 +627,19 @@ console.log("Error: More than one staff selected")
     
     while (milliseconds.toString().length < 3) milliseconds = "0" + milliseconds;
     
-    var result = secondsPart + "." + milliseconds + '"';
+    var result = "";
+
+    if (useFps) {
+        var fpsVal = parseFloat(fpsField.text)
+        dropFrames = fpsVal === 29.97 || fpsVal === 59.94 || fpsVal === 23.976 || fpsVal === 23.98;
+        // console.log("dropFrames: " + dropFrames)
+
+        milliseconds = formatTimecode(milliseconds, fpsVal, dropFrames)
+        result = secondsPart + milliseconds;
+
+    } else {
+      result = secondsPart + "." + milliseconds + '"';
+    }
     
     if (minutes > 0 || alwaysIncludeMinutes)
     {
@@ -582,7 +650,6 @@ console.log("Error: More than one staff selected")
     
     return result;
   }
-
 
 //=============================================================================
 // 
@@ -698,6 +765,58 @@ console.log("Error: More than one staff selected")
   {
     elapsedTime = 0.0;
     
-  }  
+  }
+
+//=============================================================================
+
+  function formatTimecode(ms, fps, drop)
+  {
+    const fr = drop ? Math.round(fps * 100) / 100 : Math.round(fps)
+    const exactFrames = ms * fr / 1000
+    const totalFrames = Math.max(0, Math.round(exactFrames)) // avoid float errors
+
+    let framesPerHour = 0
+    let framesPer24Hours = 0
+    let framesPer10Minutes = 0
+    let framesPerMinute = 0
+
+    let d = drop
+
+    if (d) {
+      // Drop-frame adjustment only valid for 29.97 and 59.94 fps
+      dropFrames = Math.round(fr === 29.97 ? 2 : fr === 59.94 ? 4 : 0)
+      if (dropFrames === 0) d = false // fallback
+
+      framesPerHour = Math.round(fr * 60 * 60)
+      framesPer24Hours = framesPerHour * 24
+      framesPer10Minutes = Math.round(fr * 60 * 10)
+      framesPerMinute = Math.round(fr * 60)
+    }
+
+    let dFrames = totalFrames
+
+    if (d) {
+      let frInt = Math.round(fr)
+      let droppedFrames = dropFrames * (Math.floor(dFrames / framesPer10Minutes) * 9 +
+                                        Math.floor((dFrames % framesPer10Minutes - dropFrames) / framesPerMinute))
+      dFrames = totalFrames + droppedFrames
+    }
+
+    let hours = Math.floor(dFrames / Math.round(fr * 3600)) % 24
+    let minutes = Math.floor(dFrames / Math.round(fr * 60)) % 60
+    let seconds = Math.floor(dFrames / Math.round(fr)) % 60
+    let frames = dFrames % Math.round(fr)
+    // console.log("frames: " + frames)
+    frames = Math.max(0, frames);  // ensure not negative, avoid visual glitches (;0-1 or ;0-2)
+    // console.log("frames: " + frames)
+
+    function pad(n) {
+      return n < 10 ? "0" + n : "" + n
+    }
+
+    const separator = d ? ";" : ":"
+    // return pad(hours) + ":" + pad(minutes) + ":" + pad(seconds) + separator + pad(frames)
+    return separator + pad(frames)
+  }
 
 }
